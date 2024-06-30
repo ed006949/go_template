@@ -1,0 +1,5 @@
+NAME		:=	go_template
+PACKAGE		:=	github.com/ed006949/${NAME}
+
+execute:
+	./bin/${NAME}
