@@ -1,40 +1,51 @@
-#NAME		:=	$(shell grep -E "^module " ./go.mod | sed -E -e "s/^module //g" -e "s/.*\///g")
 DATE		:=	$(shell date)
-GIT_STATUS		:=	$(shell git status --short)
 
 all:	commit build commit
-#all:	commit go-clean clean go-update test build commit
+#all:	commit clean init update test build commit
 
 build:
-	go build -ldflags="-s -w" -trimpath -o "./bin/${NAME}" ./src/...
-#	go build -ldflags="-s -w" -trimpath -o "./bin/" ./src/...
+	go build -ldflags="-s -w" -trimpath -o "./bin/${NAME}" ./...
 
 clean:
-	go clean -i -r -x -cache -testcache -modcache -fuzzcache
-	find ./ -name ".DS_Store" -delete
-	find ./ -name "._.DS_Store" -delete
+	-gh auth logout
+	-go clean -i -r -x -cache -testcache -modcache -fuzzcache
+	-rm -v go.mod
+	-rm -v go.sum
+	-find ./ -name ".DS_Store" -delete
+	-find ./ -name "._.DS_Store" -delete
 
 commit:
-ifneq (${GIT_STATUS},)
+ifneq ($(shell git status --short),)
 	git add . && git commit -m "${DATE}" && git push
 endif
 
 init:
-	go mod init ${NAME}
+	gh auth login --with-token < ~/.git_token
+	go mod init ${TARGET}
 	go get -u ./...
 	go mod tidy
 
 install:
-	@echo ${NAME} ${PACKAGE} ${DATE} ${GIT_STATUS}
+	@echo ${NAME} ${PACKAGE} ${TARGET} ${DATE} $(shell git status --short)
 
 race:
-	go run -race ./src/...
+	go run -race ./...
+
+release:
+	git add .
+	git commit -m "${DATE}"
+	git tag v${VERSION}
+	git push origin v${VERSION}
+	gh release create v${VERSION} --generate-notes --latest=true
 
 run:
-	go run -ldflags="-s -w" -trimpath ./src/...
+	go run -ldflags="-s -w" -trimpath ./...
+
+status:
+	git status
 
 test:
-	go test ./src/...
+	go test ./...
 
 update:
 	go get -u ./...
