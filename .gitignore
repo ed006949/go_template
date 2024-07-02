@@ -21,3 +21,9 @@ etc
 
 var
 **/var
+
+tmp
+**/tmp
+
+vendor
+**/vendor

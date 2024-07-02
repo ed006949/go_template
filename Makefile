@@ -16,8 +16,13 @@ clean:
 
 commit:
 ifneq ($(shell git status --short),)
-	git add . && git commit -m "${DATE}" && git push
+	git add .
+	git commit -m "${DATE}"
+	git push
 endif
+
+diff:
+	git diff
 
 init:
 	gh auth login --with-token < ~/.git_token
@@ -31,9 +36,7 @@ install:
 race:
 	go run -race ./...
 
-release:
-	git add .
-	git commit -m "${DATE}"
+release: commit
 	git tag v${VERSION}
 	git push origin v${VERSION}
 	gh release create v${VERSION} --generate-notes --latest=true
