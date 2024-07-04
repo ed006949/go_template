@@ -19,11 +19,11 @@ bin
 etc
 **/etc
 
-var
-**/var
-
 tmp
 **/tmp
+
+var
+**/var
 
 vendor
 **/vendor
